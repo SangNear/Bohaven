@@ -22,27 +22,37 @@ const SidebarAdmin = () => {
 
                     <PanelRightOpen strokeWidth={2} className='text-mainColor' onClick={() => setCloseMenu(true)} />
                 </div>
-                <div className="flex flex-col gap-3 px-2 ">
-                    {menuAdmin.map((item) => {
-                        const Icon = item.icon;
-                         const isActive = pathname.startsWith(item.path);
-                        return (
-                            <Link
-                                key={item.path}
-                                href={item.path}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all mt-2
-                                ${
-                                    isActive
-                                        ? "bg-mainColor text-white font-semi"
-                                        : "text-gray-600 hover:bg-gray-100"
-                                }
-                            `}
-                            >
-                                <Icon size={20} />
-                                <span className="capitalize ">{item.label}</span>
-                            </Link>
-                        );
-                    })}
+                <div className="flex flex-col gap-4 px-2">
+                    {menuAdmin.map((section) => (
+                        <div key={section.section}>
+
+                            <p className=" text-xs font-semibold capitalize text-gray-400">
+                                {section.section}
+                            </p>
+
+                            <div className="flex flex-col gap-1 mt-2">
+                                {section.item.map((item) => {
+                                    const Icon = item.icon
+                                    const isActive = pathname.startsWith(item.path)
+                                    return (
+                                        <Link
+                                            key={item.path}
+                                            href={item.path}
+                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all
+                                                ${isActive
+                                                    ? "bg-mainColor text-white font-semibold"
+                                                    : "text-gray-600 hover:bg-gray-100"
+                                                }
+                                            `}
+                                        >
+                                            <Icon size={20} />
+                                            <span className="capitalize">{item.label}</span>
+                                        </Link>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

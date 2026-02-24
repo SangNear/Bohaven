@@ -184,28 +184,59 @@ export const bookList = [
 
 export const menuAdmin = [
     {
-        label: "dashboard",
-        icon: LayoutDashboard,
-        path: "/admin/dashboard"
+        section: "main menu",
+        item: [
+            {
+                label: "dashboard",
+                icon: LayoutDashboard,
+                path: "/admin/dashboard"
+            },
+            {
+                label: "customers",
+                icon: Users,
+                path: "/admin/customers"
+            },
+            {
+                label: "payment orders",
+                icon: CreditCard,
+                path: "/admin/payment-orders"
+            },
+            {
+                label: "categories",
+                icon: Tags,
+                path: "/admin/categories"
+            }
+
+        ]
     },
     {
-        label: "products",
-        icon: Package,
-        path: "/admin/products"
+        section: "product",
+        item: [
+            {
+                label: "products",
+                icon: Package,
+                path: "/admin/products"
+            },
+            {
+                label: "add products",
+                icon: Package,
+                path: "/admin/addProduct"
+            },
+        ]
     },
     {
-        label: "customers",
-        icon: Users,
-        path: "/admin/customers"
-    },
-    {
-        label: "payment orders",
-        icon: CreditCard,
-        path: "/admin/payment-orders"
-    },
-    {
-        label: "categories",
-        icon: Tags,
-        path: "/admin/categories"
+        section: "admin",
+        item: [
+            {
+                label: "admin role",
+                icon: Package,
+                path: "/admin/role"
+            },
+            {
+                label: "control authority",
+                icon: Package,
+                path: "/admin/authority"
+            },
+        ]
     }
 ];
