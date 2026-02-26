@@ -48,10 +48,10 @@ const LoginPageAdmin = () => {
 
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className='flex flex-col gap-3'>
-            <Label>Username</Label>
+            <Label>Tên đăng nhập</Label>
             <Input
               type='text'
-              placeholder='Nhap username'
+
               {...form.register('username')}
               className='border-2 border-gray-300 rounded-md p-2'
             />
@@ -59,19 +59,17 @@ const LoginPageAdmin = () => {
           </div>
 
           <div className='flex flex-col gap-3'>
-            <Label>Password</Label>
+            <Label>Mật khẩu</Label>
             <Input
               type='password'
-              placeholder='Nhap password'
+
               {...form.register('password')}
             />
             <p className='text-red-500'>{form.formState.errors.password?.message}</p>
           </div>
 
-          <Button type='submit' className='bg-blue-500 text-white rounded-md p-6 mt-3 w-full' disabled={loading}>Đăng nhập</Button>
-          {loading && <div className='flex items-center justify-center'>
-            <Loader2 className='w-4 h-4 animate-spin' />
-          </div>}
+          <Button type='submit'  className='bg-blue-500 text-white rounded-md p-6 mt-3 w-full' disabled={loading}>{loading ? <Loader2 className='w-4 h-4 animate-spin' /> : 'Đăng nhập'}</Button>
+
         </form>
       </div>
 

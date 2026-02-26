@@ -1,4 +1,5 @@
 "use client"
+import { ThemeProvider } from "@/providers/theme-provider"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -24,6 +25,13 @@ export default function AdminAuthLayout({ children, }: { children: React.ReactNo
         return <div>Đang kiểm tra đăng nhập...</div>
     }
     else {
-        return <>{children}</>
+        return <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem = {false}
+            disableTransitionOnChange = {false}
+        >
+            {children}
+        </ThemeProvider>
     }
 }
