@@ -45,7 +45,7 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
     try {
         const { username, password, email, avatar, displayName, phone, role } = req.body
-        if (!username || !password || !email || !displayName ) {
+        if (!username || !password || !email || !displayName) {
             return res.status(400).json({
                 message: "All field is require"
             })
@@ -99,7 +99,7 @@ export const register = async (req, res) => {
     }
 }
 
-export const refreshToken = async (req,res) => {
+export const refreshToken = async (req, res) => {
     try {
         //lay token tu cookie
         const tokenFromCookie = req.cookies.refreshToken
@@ -108,7 +108,7 @@ export const refreshToken = async (req,res) => {
                 success: false,
                 message: "Refresh token is required"
             })
-        } 
+        }
         //hash token
         const hashedToken = hashToken(tokenFromCookie)
         //tim token trong database
@@ -126,7 +126,7 @@ export const refreshToken = async (req,res) => {
                 message: "Refresh token is expired"
             })
         }
-        
+
 
         //xoa token cu
         await RefreshToken.deleteOne({ token: hashedToken })
@@ -144,7 +144,7 @@ export const refreshToken = async (req,res) => {
             sameSite: "none",
             maxAge: TTL_REFRESH_TOKEN
         })
-        
+
         //tao access token moi
         const accessToken = await generateAccessToken(refreshToken.user)
         return res.status(200).json({
@@ -152,6 +152,42 @@ export const refreshToken = async (req,res) => {
             accessToken
         })
 
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Error Occur"
+        })
+    }
+}
+export const logout = async (req, res) => {
+    try {
+        // dang xuat user
+        const refreshToken = req.cookies.refreshToken
+        if (refreshToken) {
+            await RefreshToken.deleteOne({ token: hashToken(refreshToken) })
+            res.clearCookie("refreshToken")
+            return res.status(200).json({
+                success: true,
+                message: "Logout successfully"
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Error Occur"
+        })
+    }
+
+}
+export const me = async (req, res) => {
+    try {
+        const user = req.user
+        return res.status(200).json({
+            success: true,
+            user
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({

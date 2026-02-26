@@ -8,7 +8,6 @@ import { menuAdmin } from '@/config'
 import { usePathname } from 'next/navigation'
 const SidebarAdmin = () => {
     const [closeMenu, setCloseMenu] = useState(false)
-    console.log(closeMenu);
 
     const pathname = usePathname()
 
