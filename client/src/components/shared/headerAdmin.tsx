@@ -11,6 +11,7 @@ import { Avatar, AvatarBadge, AvatarImage } from '../ui/avatar'
 import { Card, CardAction, CardHeader, CardTitle } from '../ui/card'
 import { Dialog, DialogTitle } from '@radix-ui/react-dialog'
 import { DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from '../ui/dialog'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '../ui/breadcrumb'
 
 
 
@@ -38,9 +39,14 @@ const HeaderAdmin = () => {
     }
     const lastSegment = pathName.split('/').filter(Boolean).pop()
     return (
-        <div className='h-[90px]  w-full p-4 shadow'>
+        <div className='h-[90px]  w-full p-4 shadow '>
             <div className='flex items-center h-full'>
-                <h1 className='font-bold  capitalize'>{lastSegment}</h1>
+
+                <h1 className='text-2xl capitalize font-semibold '>{lastSegment}</h1>
+
+
+
+
                 <div className='ml-auto flex items-center gap-4'>
                     <div className='flex items-center gap-2'>
                         <Switch onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
