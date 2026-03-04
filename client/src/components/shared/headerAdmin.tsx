@@ -22,7 +22,6 @@ const HeaderAdmin = () => {
 
     const { user, logout } = useAuthStore()
     const [logoutConfirm, setLogoutConfirm] = useState(false)
-    console.log("user", user);
 
     const handleLogout = async () => {
         try {

@@ -27,7 +27,7 @@ export default function AdminLayout({
         <div
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-            <div className="h-screen relative overflow-hidden">
+            <div className="md:h-screen relative overflow-hidden">
                 <div className="flex h-full w-full">
                     <SidebarAdmin />
                     <div className="flex flex-col w-full">

@@ -1,15 +1,112 @@
+"use client"
 import CardCustom from '@/components/shared/cardCustom'
-import { Badge } from '@/components/ui/badge'
+import CategoryTable from '@/components/shared/categoryTable'
+import ModalAddCategory, { InputsCategory } from '@/components/shared/modalAddCategory'
+import ModalDeleteCategory from '@/components/shared/modalDeleteCategory'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Pencil, Trash2 } from 'lucide-react'
-import React from 'react'
+import { useAddCategory } from '@/hooks/category/useAddCategory'
+import { useCategories } from '@/hooks/category/useCategories'
+import useDeleteCategory from '@/hooks/category/useDeleteCategory'
+import useGetCategoryById from '@/hooks/category/useGetCategoryById'
+import useUpdateCategory from '@/hooks/category/useUpdateCategory'
+import { useCategoryStore } from '@/store/useCategoryStore'
+import { Loader2 } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 const AdminCategories = () => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [categoryId, setCategoryId] = useState<string | null>(null)
+  const { data, isLoading } = useCategories()
+  const { mutate: createCategory, isPending: isAddingCategory } = useAddCategory()
+  const { mutate: updateCategory, isPending: isUpdatingCategory } = useUpdateCategory()
+  const { mutate: deleteCategory, isPending: isDeletingCategory } = useDeleteCategory()
+  const { data: category, isLoading: isLoadingCategory } = useGetCategoryById(categoryId || "")
+  const { page, limit, search, isActive, setPage, setLimit, setSearch, setIsActive } = useCategoryStore()
+  const [searchInput, setSearchInput] = useState(search)
+  const [isOpenModelCategory, setIsOpenModelCategory] = useState(false)
+  const [isOpenModelDeleteCategory, setIsOpenModelDeleteCategory] = useState(false)
+
+  const handleSubmit = (data: InputsCategory) => {
+    if (categoryId) {
+      updateCategory({
+        id: categoryId,
+        payload: {
+          name: data.name,
+          description: data.description,
+        },
+      },
+        {
+          onSuccess: () => {
+            toast.success("Cập nhật danh mục thành công")
+            setIsOpenModelCategory(false)
+          },
+          onError: (error: any) => {
+            console.log(error);
+            toast.error(error.response.data.message)
+          }
+        }
+      )
+    }
+    else {
+      createCategory({
+        name: data.name,
+        description: data.description,
+      },
+        {
+          onSuccess: () => {
+            toast.success("Thêm danh mục thành công")
+            setIsOpenModelCategory(false)
+          },
+          onError: (error: any) => {
+            console.log(error);
+            toast.error(error.response.data.message)
+          }
+        }
+      )
+    }
+
+  }
+  const handleSubmitDeleteCategory = () => {
+    console.log("delete category", categoryId)
+    deleteCategory({ id: categoryId || "" }, {
+      onSuccess: () => {
+        toast.success("Xóa danh mục thành công")
+        setIsOpenModelDeleteCategory(false)
+      },
+      onError: (error: any) => {
+        toast.error(error.response.data.message)
+      },
+    })
+    setIsOpenModelDeleteCategory(false)
+  }
+  const handleOpenModelCategory = () => {
+    setCategoryId(null)
+    setIsOpenModelCategory(true)
+  }
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchInput)
+    }, 500)
+
+    return () => clearTimeout(handler)
+  }, [searchInput, setSearch])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    params.set("page", page.toString())
+    params.set("limit", limit.toString())
+    params.set("search", search)
+    params.set("isActive", isActive ? "true" : "false")
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+
+  }, [page, limit, search, isActive, pathname, router])
+
+
   return (
     <div className="p-4">
       {/*  4 Cards statistics */}
@@ -25,82 +122,50 @@ const AdminCategories = () => {
         <Input
           placeholder="Tìm theo tên danh mục..."
           className="max-w-sm"
+          onChange={(e) => setSearchInput(e.target.value)}
+          value={searchInput}
         />
-        <Select>
+        <Select value={isActive ? "true" : "false"} onValueChange={(value) => setIsActive(value === "true" ? true : false)}>
           <SelectTrigger>
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
           <SelectContent position="popper">
             <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="active">Hoạt động</SelectItem>
-            <SelectItem value="inactive">Không hoạt động</SelectItem>
+            <SelectItem value="true">Hoạt động</SelectItem>
+            <SelectItem value="false">Không hoạt động</SelectItem>
           </SelectContent>
         </Select>
 
-        <Button className="bg-blue-600 text-white ml-auto">
+        <Button className="bg-blue-600 text-white ml-auto cursor-pointer" onClick={handleOpenModelCategory}>
           + Thêm danh mục
         </Button>
+
+        {isOpenModelCategory &&
+          <ModalAddCategory
+            isAddingCategory={isAddingCategory}
+            category={category?.data || null}
+            open={isOpenModelCategory}
+            onOpenChange={setIsOpenModelCategory}
+            onSubmit={handleSubmit}
+          />}
+        {isOpenModelDeleteCategory &&
+          <ModalDeleteCategory
+            open={isOpenModelDeleteCategory}
+            onOpenChange={setIsOpenModelDeleteCategory}
+            onSubmit={handleSubmitDeleteCategory}
+            categoryId={categoryId || ""}
+          />}
       </div>
 
       {/* table for categories */}
       <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="w-[40%]">Tên danh mục</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">Máy giặt</TableCell>
-              <TableCell>may-giat</TableCell>
-              <TableCell>
-                <Badge className="bg-green-100 text-green-700">
-                  Active
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button size="icon" variant="ghost">
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-red-500"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell className="font-medium">Tủ lạnh</TableCell>
-              <TableCell>tu-lanh</TableCell>
-              <TableCell>
-                <Badge className="bg-green-100 text-green-700">
-                  Active
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button size="icon" variant="ghost">
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-red-500"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-            
-          </TableBody>
-        </Table>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </div>
+        ) : (
+          <CategoryTable setIsOpenModelDeleteCategory={setIsOpenModelDeleteCategory} setCategoryId={setCategoryId} setIsOpenModelCategory={setIsOpenModelCategory} data={data?.data || []} />
+        )}
       </div>
     </div>
   )
