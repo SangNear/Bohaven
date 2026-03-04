@@ -27,7 +27,7 @@ app.use(cookieParser());
 //Routes
 app.use("/api/auth", authRoute)
 app.use("/api/books", bookRoute)
-app.use("/api/category", categoryRoute)
+app.use("/api/categories", categoryRoute)
 
 
 app.listen(PORT, () => {
