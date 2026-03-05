@@ -21,10 +21,7 @@ export default function AdminAuthLayout({ children, }: { children: React.ReactNo
     useEffect(() => {
         init()
     }, [])
-    if (!authInitialized) {
-        return <div>Đang kiểm tra đăng nhập...</div>
-    }
-    else {
+
         return <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -33,5 +30,5 @@ export default function AdminAuthLayout({ children, }: { children: React.ReactNo
         >
             {children}
         </ThemeProvider>
-    }
+
 }

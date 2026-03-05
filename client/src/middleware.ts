@@ -4,10 +4,14 @@ export function middleware(req: NextRequest) {
   const refreshToken = req.cookies.get("refreshToken")
   const { pathname } = req.nextUrl
 
+  if (refreshToken && pathname === "/admin/login") {
+    return NextResponse.redirect(new URL("/admin/dashboard", req.url))
+  }
   // Chỉ chặn admin khi chắc chắn không có refreshToken
   if (!refreshToken && pathname.startsWith("/admin") && pathname !== "/admin/login") {
     return NextResponse.redirect(new URL("/admin/login", req.url))
   }
+
 
   return NextResponse.next()
 }
