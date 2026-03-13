@@ -38,7 +38,7 @@ const HeaderAdmin = () => {
     }
     const lastSegment = pathName.split('/').filter(Boolean).pop()
     return (
-        <div className='h-[90px]  w-full p-4 shadow '>
+        <div className='h-[90px]  w-full px-6 md:px-6 py-4 shadow '>
             <div className='flex items-center h-full'>
 
                 <h1 className='text-2xl capitalize font-semibold '>{lastSegment}</h1>

@@ -12,7 +12,7 @@ const SidebarAdmin = () => {
     const pathname = usePathname()
 
     return (
-        <div className={`max-md:hidden  h-full  border-r transition-[width] duration-300 ease-in-out overflow-hidden  ${closeMenu ? "w-0" : "md:w-[200px] lg:w-[260px]"}`}>
+        <div className={`max-md:hidden  h-full  border-r transition-[width] duration-300 ease-in-out overflow-hidden  ${closeMenu ? "w-0" : "md:w-[200px] lg:w-[300px]"}`}>
             <div className='flex flex-col'>
                 <div className='flex items-center justify-between relative p-4  min-h-[90px]'>
                     <Link href='/admin/dashboard'>
