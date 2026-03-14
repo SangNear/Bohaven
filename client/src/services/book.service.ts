@@ -10,7 +10,7 @@ interface BookPayload {
     price: number
     stock: number
     categories: string[]
-    images: File[]
+    images: string[]
 }
 
 const bookService = {

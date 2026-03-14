@@ -12,6 +12,9 @@ import { useForm } from 'react-hook-form'
 import { useUploadImages } from '@/hooks/product/useUploadImages'
 import { useUploadImagesStore } from '@/store/useUploadImagesStore'
 import SelectedCategories from '@/components/shared/selectedCategories'
+import { useCategories } from '@/hooks/category/useCategories'
+import { toast } from 'sonner'
+import useAddBook from '@/hooks/product/useAddBook'
 
 const bookSchema = z.object({
   title: z.string().min(1, { message: "Tên sách phải có ít nhất 1 ký tự" }),
@@ -26,14 +29,24 @@ const bookSchema = z.object({
 })
 export type BookSchemaValues = z.infer<typeof bookSchema>
 
-const categories = ["Trinh thám", "Văn học", "Tiểu thuyết", "Kinh dị", "Truyện tranh"]
-const AddProduct = () => {
-  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([categories[0]]);
-  const [images, setImages] = React.useState<File[]>([]);
-  const { mutate: uploadImagesMutation } = useUploadImages()
-  const { isUploadingImages } = useUploadImagesStore()
+export interface CategoryData {
+  _id: string,
+  name: string,
+}
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } , setValue } = useForm<BookSchemaValues>({
+// const categories = ["Trinh thám", "Văn học", "Tiểu thuyết", "Kinh dị", "Truyện tranh"]
+
+const AddProduct = () => {
+  const { data: categoriesApi } = useCategories()
+
+  const [categoriesState, setCategoriesState] = React.useState<CategoryData[]>([]);
+  const firstId = categoriesState?.[0]?._id;
+  const [selectedCategoriesId, setSelectedCategoriesId] = React.useState<string[]>(firstId ? [firstId] : []);
+  const [imagesState, setImagesState] = React.useState<File[]>([]);
+  const { mutate: uploadImagesMutation } = useUploadImages()
+  const { isUploadingImages, imagesUploaded, setImagesUploaded } = useUploadImagesStore()
+  const { mutate: addBookMutation } = useAddBook()
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<BookSchemaValues>({
     resolver: zodResolver(bookSchema),
     defaultValues: {
       title: "",
@@ -44,42 +57,87 @@ const AddProduct = () => {
       content: "",
       price: "",
       stock: "",
-      categories: [categories[0]]
+      categories: firstId ? [firstId] : []
 
     },
   })
+
+  useEffect(() => {
+    if (categoriesApi) {
+      setCategoriesState(categoriesApi.data.map((category: CategoryData) => category));
+    }
+  }, [categoriesApi])
+
+
+
+
+
 
   const refFile = React.useRef<HTMLInputElement | null>(null);
   const handleUploadImage = () => {
     refFile.current?.click();
 
+
   }
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      setImages(Array.from(files));
-
-
+      setImagesState(Array.from(files));
     }
 
   }
   useEffect(() => {
-    if (images.length > 0) {
-      uploadImagesMutation(images)
+
+    if (imagesState.length > 0) {
+      uploadImagesMutation(imagesState)
+      setImagesState([])
     }
-  }, [images])
+  }, [imagesState])
+  // console.log("images in state", imagesState);
+
+  // console.log("images in store", imagesUploaded);
+
+  const handleDeleteImage = (image: string) => {
+    // setImages(images.filter((img) => img !== image))
+    setImagesUploaded(imagesUploaded.filter((img) => img !== image))
 
 
+  }
 
 
   const onSubmit = (data: BookSchemaValues) => {
-    const convertedData = {
-      ...data,
+
+    if (imagesUploaded.length === 0) {
+      toast.error("Vui lòng tải lên ít nhất 1 ảnh")
+      return
+    }
+    if (isUploadingImages) {
+      toast.error("Vui lòng chờ tải lên ảnh")
+      return
+    }
+
+    const payload = {
+      title: data.title.trim(),
+      author: data.author.trim(),
       publishedYear: Number(data.publishedYear),
+      size: data.size.trim(),
+      format: data.format.trim(),
+      content: data.content.trim(),
       price: Number(data.price),
       stock: Number(data.stock),
+      categories: data.categories,
+      images: imagesUploaded,
     }
-    console.log(convertedData);
+
+    addBookMutation(payload, {
+      onSuccess: () => {
+        toast.success("Thêm sản phẩm thành công")
+      },
+      onError: (error: any) => {
+        toast.error(error.response.data.message)
+      }
+    })
+
   }
   return (
     <div className='px-4 md:px-6 py-4  w-full'>
@@ -185,11 +243,12 @@ const AddProduct = () => {
 
             {/* 5. Thể loại */}
             <SelectedCategories
+              categoriesState={categoriesState}
               errors={errors}
-              categories={categories}
+
               setValue={setValue}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
+              selectedCategoriesId={selectedCategoriesId}
+              setSelectedCategoriesId={setSelectedCategoriesId}
             />
 
             <Button
@@ -205,10 +264,12 @@ const AddProduct = () => {
         <div className='flex-[1] border border-gray-200 rounded-md p-4 overflow-y-hidden '>
           <ImageUpload
             refFile={refFile as React.RefObject<HTMLInputElement>}
-            images={images}
+            imagesState={imagesState}
+            imagesStore={imagesUploaded}
             handleUploadImage={handleUploadImage}
             handleChangeFile={handleChangeFile}
             isUploadingImages={isUploadingImages}
+            handleDeleteImage={handleDeleteImage}
           />
         </div>
 

@@ -3,19 +3,23 @@ import React from 'react'
 import { Label } from '../ui/label';
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue } from '../ui/combobox';
 import { FieldErrors, useForm, UseFormSetValue } from 'react-hook-form';
-import { BookSchemaValues } from '@/app/admin/(home)/addProduct/page';
+import { BookSchemaValues, CategoryData } from '@/app/admin/(home)/addProduct/page';
+
 
 interface SelectedCategoriesProps {
 
-    categories: string[]
+
     errors: FieldErrors<BookSchemaValues>
-    selectedCategories: string[]
-    setSelectedCategories: (categories: string[]) => void
+    selectedCategoriesId: string[]
+    setSelectedCategoriesId: (categoriesId: string[]) => void
     setValue: UseFormSetValue<BookSchemaValues>
+    categoriesState: CategoryData[]
 }
 
-const SelectedCategories = ({ categories, errors, selectedCategories, setSelectedCategories, setValue }: SelectedCategoriesProps) => {
 
+const SelectedCategories = ({ errors, selectedCategoriesId, setSelectedCategoriesId, setValue, categoriesState }: SelectedCategoriesProps) => {
+
+    console.log("categories state", categoriesState);
 
     const anchor = React.useRef<HTMLDivElement>(null);
     return (
@@ -24,10 +28,10 @@ const SelectedCategories = ({ categories, errors, selectedCategories, setSelecte
             <Combobox
                 multiple
                 autoHighlight
-                items={categories}
-                value={selectedCategories}
+                items={categoriesState.map((category: CategoryData) => category._id)}
+                value={selectedCategoriesId}
                 onValueChange={(values: string[]) => {
-                    setSelectedCategories(values);
+                    setSelectedCategoriesId(values);
                     setValue('categories', values, { shouldValidate: true });
                 }}
             >
@@ -35,10 +39,13 @@ const SelectedCategories = ({ categories, errors, selectedCategories, setSelecte
                     <ComboboxValue>
                         {(values) => (
                             <React.Fragment>
-                                {values.map((value: string) => (
-                                    <ComboboxChip key={value}>{value}</ComboboxChip>
-                                ))}
-                                <ComboboxChipsInput />
+                                {console.log("values", values)}
+
+                                {values.map((id: string) => {
+                                    const name = categoriesState.find((c) => c._id === id)?.name ?? id;
+                                    return <ComboboxChip key={id}>{name}</ComboboxChip>;
+                                })}
+                                <ComboboxChipsInput key="combobox-chips-input" />
                             </React.Fragment>
                         )}
                     </ComboboxValue>
@@ -46,11 +53,14 @@ const SelectedCategories = ({ categories, errors, selectedCategories, setSelecte
                 <ComboboxContent anchor={anchor}>
                     <ComboboxEmpty>No items found.</ComboboxEmpty>
                     <ComboboxList>
-                        {(item) => (
-                            <ComboboxItem key={item} value={item}>
-                                {item}
-                            </ComboboxItem>
-                        )}
+                        {(item) => {
+                            const name = categoriesState.find((c) => c._id === item)?.name ?? item;
+                            return (
+                                <ComboboxItem key={item} value={item}>
+                                    {name}
+                                </ComboboxItem>
+                            )
+                        }}
                     </ComboboxList>
                 </ComboboxContent>
             </Combobox>
